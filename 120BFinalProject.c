@@ -1,0 +1,57 @@
+/*
+ * ayee013_FinalProject_Beta.c
+ *
+ * Created: 5/23/18 2:52:35 PM
+ * Author : AlexYeeeeee
+ */
+
+#include <avr/io.h>
+#include "io.c"
+#include "timer.h"
+
+
+
+unsigned char customChar[]  = {0x04,0x04,0x04,0x04,0x15,0x0e,0x04,0x00};
+unsigned char customChar2[] = {0x04,0x0e,0x15,0x04,0x04,0x04,0x04,0x00};
+unsigned char customChar3[] = {0x04,0x0e,0x15,0x04,0x04,0x04,0x04,0x00};
+unsigned char customChar4[] = {0x1c,0x16,0x1d,0x01,0x1d,0x16,0x1c,0x00};
+unsigned char customChar5[] = {0x1c,0x16,0x1d,0x01,0x1d,0x16,0x1c,0x00};
+unsigned char customChar6[] = {0x1c,0x16,0x1d,0x01,0x1d,0x16,0x1c,0x00};
+unsigned char customChar7[] = {0x1c,0x16,0x1d,0x01,0x1d,0x16,0x1c,0x00};
+unsigned char customChar8[] = {0x1c,0x16,0x1d,0x01,0x1d,0x16,0x1c,0x00};
+
+
+int main(void)
+{
+	DDRC = 0xFF; PORTC = 0x00; /* used as data port */
+	DDRD = 0xFF; PORTD = 0x00;/* used for generating E and RS */
+    /* Replace with your application code */
+    LCD_init();
+	LCDBuildChar(0, customChar);
+	LCDBuildChar(1, customChar2); /* Build Character1 at position i */
+	LCDBuildChar(2, customChar3);
+	LCDBuildChar(3, customChar4);
+	LCDBuildChar(4, customChar5);
+	LCDBuildChar(5, customChar6);
+	LCDBuildChar(6, customChar7);
+	LCDBuildChar(7, customChar8);
+
+
+
+	LCD_WriteData(0x00);
+	LCD_WriteData(' ');
+	LCD_WriteData(0x01);
+	LCD_WriteData(' ');
+	LCD_WriteData(0x02);
+	LCD_WriteData(0x03);
+	LCD_WriteData(0x04);
+	LCD_WriteData(0x05);
+	LCD_WriteData(0x06);
+	LCD_WriteData(0x07);
+
+
+	while (1)
+    {
+		;
+    }
+}
