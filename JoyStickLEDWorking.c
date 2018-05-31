@@ -100,26 +100,26 @@ int inputTick(int state){
 				}
 			}
 			if (HORIZONTALMOV<HORIZONTAL+400){  // Right
-				if(row <= 0x01){
-					row = 0x01;
-				}
-				else{
-					row = row >> 1;
-				}
-			}
+				 if(col >= 0x40){
+					 col = 0x80;
+				 }
+				 else{
+					 col = col << 1;
+				 }
+			 }
 
 // 		if (HORIZONTALMOV<HORIZONTAL+400 && HORIZONTALMOV<HORIZONTAL+633){  //Diagonal
 // 			    //Do nothing
 // 		    }
 
 		if (HORIZONTALMOV>(HORIZONTAL+700)){ //Left:  if (HORIZONTALMOV>(HORIZONTAL+700))
-			if(row >= 0x40){
-				row = 0x80;
-			}
-			else{
-				row = row << 1;
-			}
-		}
+			 if(col <= 0x01){
+				 col = 0x01;
+			 }
+			 else{
+				 col = col >> 1;
+			 }
+		 }
 
 // 		if (HORIZONTALMOV<HORIZONTAL+700 && (HORIZONTALMOV<HORIZONTAL+953) ){
 // 			//Do nothing
@@ -129,14 +129,13 @@ int inputTick(int state){
 //if less than 400 right, if greater than 700 left
 
 		   if (VERTICAlMOV<VERTICAl+400){ //if
-			   if(col <= 0x01){
-					col = 0x01;
-			   }
-			   else{
-				   col = col >> 1;
-			   }
-		   }
-
+			     if(row >= 0x40){
+				     row = 0x80;
+			     }
+			     else{
+				     row = row << 1;
+			     }
+		     }
 
 // 			if ((VERTICAlMOV<VERTICAl+700 && HORIZONTALMOV<HORIZONTAL+400) && (VERTICAlMOV<VERTICAl+700 && HORIZONTALMOV<HORIZONTAL+700))
 // 			{
@@ -144,11 +143,11 @@ int inputTick(int state){
 // 			}
 
 		   if (VERTICAlMOV>VERTICAl+700){ //test1
-			   if(col >= 0x40){
-					col = 0x80;
+			   if(row <= 0x01){
+				   row = 0x01;
 			   }
 			   else{
-				 col = col << 1;
+				   row = row >> 1;
 			   }
 		   }
 		    transmit_column(~col);
