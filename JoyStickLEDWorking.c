@@ -108,10 +108,6 @@ int inputTick(int state){
 				 }
 			 }
 
-// 		if (HORIZONTALMOV<HORIZONTAL+400 && HORIZONTALMOV<HORIZONTAL+633){  //Diagonal
-// 			    //Do nothing
-// 		    }
-
 		if (HORIZONTALMOV>(HORIZONTAL+700)){ //Left:  if (HORIZONTALMOV>(HORIZONTAL+700))
 			 if(col <= 0x01){
 				 col = 0x01;
@@ -120,27 +116,16 @@ int inputTick(int state){
 				 col = col >> 1;
 			 }
 		 }
-
-// 		if (HORIZONTALMOV<HORIZONTAL+700 && (HORIZONTALMOV<HORIZONTAL+953) ){
-// 			//Do nothing
-// 		}
-
-
 //if less than 400 right, if greater than 700 left
 
-		   if (VERTICAlMOV<VERTICAl+400){ //if
-			     if(row >= 0x40){
-				     row = 0x80;
-			     }
-			     else{
-				     row = row << 1;
-			     }
+		  if (VERTICAlMOV<VERTICAl+400){ //if
+		     if(row >= 0x40){
+			     row = 0x80;
 		     }
-
-// 			if ((VERTICAlMOV<VERTICAl+700 && HORIZONTALMOV<HORIZONTAL+400) && (VERTICAlMOV<VERTICAl+700 && HORIZONTALMOV<HORIZONTAL+700))
-// 			{
-//
-// 			}
+		     else{
+			     row = row << 1;
+		     }
+		   }
 
 		   if (VERTICAlMOV>VERTICAl+700){ //test1
 			   if(row <= 0x01){
@@ -160,9 +145,6 @@ int inputTick(int state){
 
 	return state;
 }
-
-
-
 
 int main(void)
 {
