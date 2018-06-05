@@ -1,3 +1,10 @@
+//New Version 6/5 4:12PM
+//This version of the program has the tasks divided up
+//Code has been cleaned up
+//New states for game logic has been added, still need to fix timing
+//Still need to program the LED to display the lights of songToGuess
+//Need to add states in a state machine to assign output for game win/loss/gameOn/game inprogress
+
 //This test bench includes PWM, Joystick and LED
 //3 State Machines
 //PWM triggered on input
@@ -13,6 +20,7 @@ unsigned char lockIn = 0x00;
 unsigned char finalAnswer = 0x00;
 unsigned char startGame = 0x00;
 unsigned char index;
+unsigned char activateJoystick = 0x00;
 /***************************/
 //Set Starting Point
 unsigned char column_select = 0x01;
@@ -42,15 +50,33 @@ unsigned char column_val = 0x01;
 
 /****************************/
 //PWM Variables for Frequency
-double freq1 = 261.63;
-double freq2 = 293.66;
-double freq3 = 329.63;
-double freq4 = 349.23;
-double freq5 = 392.00;
-double freq6 = 440.00;
-double freq7 = 493.88;
-double freq8 = 987.77;
+#define freq1  261.63
+#define freq2  293.66
+#define freq3  329.63
+#define freq4  349.23
+#define freq5  392.00
+#define freq6  440.00
+#define freq7  493.88
+#define freq8  987.77
 /****************************/
+//Variables for Array, Equivalent to Frequencies
+#define _C4  freq1
+#define _D4  freq2
+#define _E4  freq3
+#define _F4  freq4
+#define _G4  freq5
+#define _A4  freq6
+#define _B4  freq7
+#define _R   freq8
+#define _C5 523.25
+
+//double songToGuess[] = {_C4, _C4, _C4, _G4, _G4, _G4, _F4, _E4};
+double songToGuess[] = { _C4, _C4, _C4, _G4, _G4,
+	_G4, _F4, _E4, _D4, _C5,
+	_C5, _C5, _G4, _G4, _F4,
+	_E4, _D4, _C5, _C5, _C5,
+	_G4, _G4, _F4, _E4, _F4,
+_D4, _D4, _D4, _D4, _D4};
 
 /**********************************/
 void set_PWM();
@@ -194,7 +220,7 @@ void findIndex(){
 /************************/
 // Button Press State Machine
 /************************/
-enum inputStates2 {Release, PressLockIn, PressFinal, Wait};
+enum inputStates2 {Release, PressStart, PressLockIn, PressFinal, Wait};
 int inputTick(int state){
 	switch(state){ //transition switch
 		case Release:
@@ -204,11 +230,21 @@ int inputTick(int state){
 			else if(A3){
 				state = PressFinal;
 			}
+			else if(StartButton){
+				state = PressStart;
+			}
 			else{
 				state = Release;
 			}
 			break;
-
+		case PressStart:
+			if(StartButton){
+				state = Wait;
+			}
+			else{
+				state = Release;
+			}
+			break;
 		case PressLockIn:
 			if(A2){
 				state = Wait;
@@ -228,7 +264,7 @@ int inputTick(int state){
 			break;
 
 		case Wait:
-			if(A2 || A3){
+			if(A2 || A3 || StartButton){
 				state = Wait;
 			}
 			else{
@@ -246,7 +282,14 @@ int inputTick(int state){
 		//PORTB = 0x00;
 			lockIn = 0x00;
 			finalAnswer = 0x00;
+			startGame = 0x00;
+			activateJoystick = 0x00;
 			//temp = 0x00;
+			break;
+		case PressStart:
+			activateJoystick = 0x01;
+			startGame = 0x01;
+
 			break;
 
 		case PressLockIn:
@@ -260,83 +303,73 @@ int inputTick(int state){
 			break;
 
 		case Wait:
-			lockIn= 0x01;
-			finalAnswer = 0x01;
+			if(lockIn){
+				lockIn = 0x01;
+			}
+			if(finalAnswer){
+				finalAnswer = 0x01;
+				activateJoystick = 0x01;
+			}
+			if(startGame){
+				startGame = 0x01;
+			}
+
+			//activateJoystick = 0x01;
 			//PORTB
+			break;
 	}
 	return state;
 }
 
 
-//Local Variable
-double songArray[8];
-//unsigned char size = 0x08;    //May be global
 
-enum SM1_States {sm1_display, playSound, confirm, playback, gameOver} states;
+/*******************************************/
+// Tick function for the Joystick
+/*******************************************/
+//enum SM1_States {sm1_display, playSound, confirm, playback, gameOver};
+enum SM1_States {WaitActivation, ActivationRelease, sm1_display};
 int SM1_Tick(int state) {
 
 	ADC_init();
 	ADMUX = !ADMUX;
 	unsigned short input;
 	input = ADC;
-	static unsigned char count;
+	//static unsigned char count;
 
 
 	switch (state) {   //Transitions
+		case WaitActivation:
+			if(activateJoystick){
+				state = sm1_display;
+			}
+			else{
+				state = WaitActivation;
+			}
+			break;
+		case ActivationRelease:
+			if(!activateJoystick){
+				state = sm1_display;
+			}
+			else{
+				state = ActivationRelease;
+			}
+
 		case sm1_display:
-			set_PWM(0);
-			if(lockIn){
-				state = playSound;
-			}
-			else if(finalAnswer){
-				state = confirm;
-				index = 0;
-			}
-			else{
-				state = sm1_display;
-			}
-			break;
-		case playSound:
-			if(lockIn){
-				state = playSound;
-			}
-			else{
-				set_PWM(0);
-				state = sm1_display;
-			}
+			state = sm1_display;
 			break;
 
-		case confirm:
-			count = 0;
-			index = 0;
-			//set_PWM(27.50);
-			if(!finalAnswer){
-				state = playback;
-			}
-			else{
-				state = confirm;
-			}
-			break;
-
-		case playback:
-			if (count < 85){ // i < 4s
-				state = playback;
-			}
-			else{
-				state = gameOver;
-			}
-			//state = gameOver;
-			break;
-
-		case gameOver:
-			break;
 
 		default:
-			state = sm1_display;
+			state = WaitActivation;
 			break;
 	}
 
 	switch (state) { //Actions
+		case WaitActivation:
+			break;
+		case ActivationRelease:
+			break;
+
 		case sm1_display:
 			if(input < 225 && ADMUX == 0){ //left
 				if(column_select <= 0x01){
@@ -379,6 +412,118 @@ int SM1_Tick(int state) {
 					findIndex();
 				}
 			}
+			break;
+
+		default:
+		break;
+	}
+	transmit_data(~column_select); // PORTC displays column pattern
+	transmit_data1(column_val); // PORTC selects column to display pattern
+	return state;
+};
+
+//Declare array to hold user input
+double songArray[8];
+enum GameStates{WaitGameStart, Start, PlaySongToGuess, WaitOptions, playSound, confirm, playback, gameOver};
+int songTick(int state) {
+	static unsigned char count;
+	switch(state){
+		case(WaitGameStart):
+			if(startGame){
+				//set_PWM(27.50);
+				state = Start;
+			}
+			else{
+				state = WaitGameStart;
+			}
+			break;
+
+		case Start:
+			//set_PWM(0);
+			state = PlaySongToGuess;
+			break;
+
+		case PlaySongToGuess:
+			state = WaitOptions;
+			break;
+
+		case WaitOptions:
+			if(lockIn){
+				state = playSound;
+			}
+			else if(finalAnswer){
+				state = confirm;
+			}
+			else{
+				state = Start;
+			}
+			break;
+		case playSound:
+			if(lockIn){
+				state = playSound;
+			}
+			else{
+				set_PWM(0);
+				state = WaitOptions;
+			}
+			break;
+
+		case confirm:
+			count = 0;
+			index = 0;
+			//set_PWM(27.50);
+			if(!finalAnswer){
+				state = playback;
+			}
+			else{
+				state = confirm;
+			}
+			break;
+
+		case playback:
+			if (count < 85){ // i < 4s
+				state = playback;
+			}
+			else{
+				state = gameOver;
+			}
+			//state = gameOver;
+			break;
+
+		case gameOver:
+			state = WaitGameStart;
+			break;
+
+		default:
+			state = WaitGameStart;
+			break;
+	}
+	switch(state){
+		case(WaitGameStart):
+			//set_PWM(0);
+			break;
+
+		case Start:
+// 			if (count%5 ==0){
+// 				set_PWM(songToGuess[index]);
+// 				index = (index > 7) ? 0 : index+1;
+// 			}
+// 			count++;
+			//set_PWM(0);
+			break;
+
+		case PlaySongToGuess:
+			if (count < 30){
+					set_PWM(songToGuess[index]);
+	 				index = (index > 30) ? 0 : index+1;
+			}
+			count++;
+			if(count > 30){
+				set_PWM(0);
+			}
+			break;
+
+		case WaitOptions:
 			break;
 
 		case playSound:
@@ -428,7 +573,7 @@ int SM1_Tick(int state) {
 			break;
 
 		case confirm:
-			//index = 0;
+			index = 0;
 			//set_PWM(27.50);
 			break;
 
@@ -446,6 +591,7 @@ int SM1_Tick(int state) {
 			column_select = 0x00;
 			column_val = 0x00;
 			PORTB = 0x07;
+			activateJoystick = 0x00;
 
 			break;
 
@@ -455,7 +601,7 @@ int SM1_Tick(int state) {
 	transmit_data(~column_select); // PORTC displays column pattern
 	transmit_data1(column_val); // PORTC selects column to display pattern
 	return state;
-};
+}
 
 int main(void)
 {
@@ -464,8 +610,8 @@ int main(void)
 	DDRD = 0xFF; PORTD = 0x00;
 	DDRB = 0xFF; PORTB = 0x00;
 
-	static task task2, task1; //task3;
-	task *tasks[] = { &task2, &task1};
+	static task task2, task1, task3;
+	task *tasks[] = { &task2, &task1, &task3};
 	const unsigned short numTasks = sizeof(tasks)/sizeof(task*);
 	//Task 1
 	task2.state = -1; //task init state
@@ -478,6 +624,12 @@ int main(void)
 	task1.period = 50;
 	task1.elapsedTime = task1.period;
 	task1.TickFct = &inputTick;
+	//Task 2
+
+	task3.state = -1; //task init state
+	task3.period = 50;
+	task3.elapsedTime = task3.period;
+	task3.TickFct = &songTick;
 	//Task 2
 
 
