@@ -12,7 +12,6 @@ unsigned char lockIn = 0x00;
 unsigned char finalAnswer = 0x00;
 unsigned char startGame = 0x00;
 unsigned char index;
-unsigned char index2;
 unsigned char activateJoystick = 0x00;
 unsigned char gameEnd = 0x00;
 unsigned char startPoint = 0x00;
@@ -209,30 +208,6 @@ void findIndex(){
 	}
 	if(column_select == 0x80){
 		index = 7;
-	}
-	if(column_val == 0x01 ){
-		index2 = 0;
-	}
-	if(column_val == 0x02 ){
-		index2 = 1;
-	}
-	if(column_val == 0x04 ){
-		index2 = 2;
-	}
-	if(column_val == 0x08 ){
-		index2 = 3;
-	}
-	if(column_val == 0x10 ){
-		index2 = 4;
-	}
-	if(column_val == 0x20){
-		index2 = 5;
-	}
-	if(column_val == 0x40){
-		index2 = 6;
-	}
-	if(column_val == 0x80){
-		index2 = 7;
 	}
 	col_arr[index] = column_select;
 	val_arr[index] = column_val;
