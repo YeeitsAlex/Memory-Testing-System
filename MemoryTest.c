@@ -1,5 +1,11 @@
-//Alexander Yee
-//CS120B Final Project - Memory Test
+/*
+ * CS120BFinalProject.c
+ *
+ *Alexander Yee
+ *CS120B Final Project - Memory Test
+ */
+
+//All inclusions are property of UCR 120B
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "timer.h"
@@ -74,12 +80,17 @@ unsigned char col_val_default[] = {0x08, 0x10, 0x80, 0x80, 0x20, 0x40, 0x01, 0x0
 /***************************************************************************************/
 //
 /***************************************************************************************/
+//PWM Functions are property of UCR 120B
 void set_PWM();
 void PWM_off();
 void PWM_on();
+
+//Transmit data functions belong to UCR 120B
 void transmit_data(unsigned char data);
 void transmit_data1(unsigned char data);
-/***************************************************************************************/
+/***********************************************/
+void findIndex();
+/***********************************************/
 
 void set_PWM(double frequency) {
 
@@ -95,56 +106,34 @@ void set_PWM(double frequency) {
 
 		else { TCCR3B |= 0x03; } // resumes/continues timer/counter
 
-
-
 		// prevents OCR3A from overflowing, using prescaler 64
 
 		// 0.954 is smallest frequency that will not result in overflow
 
 		if (frequency < 0.954) { OCR3A = 0xFFFF; }
 
-
-
 		// prevents OCR0A from underflowing, using prescaler 64     // 31250 is largest frequency that will not result in underflow
 
 		else if (frequency > 31250) { OCR3A = 0x0000; }
-
-
-
 		// set OCR3A based on desired frequency
-
 		else { OCR3A = (short)(8000000 / (128 * frequency)) - 1; }
 
-
-
 		TCNT3 = 0; // resets counter
-
 		current_frequency = frequency; // Updates the current frequency
-
 	}
 
 }
 void PWM_on() {
-
 	TCCR3A = (1 << COM3A0);
-
 	// COM3A0: Toggle PB3 on compare match between counter and OCR0A
-
 	TCCR3B = (1 << WGM32) | (1 << CS31) | (1 << CS30);
-
 	// WGM02: When counter (TCNT0) matches OCR0A, reset counter
-
 	// CS01 & CS30: Set a prescaler of 64
-
 	set_PWM(0);
-
 }
 void PWM_off() {
-
 	TCCR3A = 0x00;
-
 	TCCR3B = 0x00;
-
 }
 void transmit_data(unsigned char data) {
 	int i;
@@ -176,6 +165,8 @@ void transmit_data1(unsigned char data) {
 	// clears all lines in preparation of a new transmission
 	PORTC = 0x00;
 }
+
+//ADC code sourced from UCR 120B
 void ADC_init() {
 	ADCSRA |= (1 << ADEN) | (1 << ADSC) | (1 << ADATE);
 	// ADEN: setting this bit enables analog-to-digital conversion.
@@ -184,6 +175,8 @@ void ADC_init() {
 	//        in Free Running Mode, a new conversion will trigger whenever
 	//        the previous conversion completes.
 }
+
+
 void findIndex(){
 	if(column_select == 0x01){
 		index = 0;
@@ -285,7 +278,6 @@ int inputTick(int state){
 
 	switch(state){ //transition switch
 		case Release:
-		//PORTB = 0x00;
 			lockIn = 0x00;
 			finalAnswer = 0x00;
 			startGame = 0x00;
@@ -332,6 +324,8 @@ int inputTick(int state){
 /*******************************************/
 // Tick function for the Joystick
 /*******************************************/
+//Joystick Code Source :
+//learn.parallax.com/tutorials/language/propeller-c/propeller-c-simple-devices/joystick/
 enum SM1_States {WaitActivation, ActivationRelease, ActivateMatrix, DisableMatrix};
 int SM1_Tick(int state) {
 
@@ -349,6 +343,7 @@ int SM1_Tick(int state) {
 				state = WaitActivation;
 			}
 			break;
+
 		case ActivationRelease:
 			if(!activateJoystick){
 				state = ActivateMatrix;
@@ -383,7 +378,7 @@ int SM1_Tick(int state) {
 			column_val = 0x01;
 			break;
 
-		 //LEFT
+		//LEFT
 		case ActivateMatrix:
 			if(input < 225 && ADMUX == 0){
 				if(column_select <= 0x01){
@@ -436,10 +431,10 @@ int SM1_Tick(int state) {
 		case DisableMatrix:
 			column_val = 0x00;
 			column_select = 0x00;
-		break;
+			break;
 
 		default:
-		break;
+			break;
 	}
 	if(startPoint){
 		transmit_data(~column_select); // PORTC displays column pattern
@@ -457,15 +452,15 @@ int songTick(int state) {
 
 	switch(state){
 		case WaitGameStart:
-			if(startGame){
-				count = 0x00;
-				k = 0x00;
-				state = Start;
-			}
-			else{
-				state = WaitGameStart;
-			}
-			break;
+		if(startGame){
+			count = 0x00;
+			k = 0x00;
+			state = Start;
+		}
+		else{
+			state = WaitGameStart;
+		}
+		break;
 
 		case Start:
 			startPoint = 0x00;
@@ -490,8 +485,8 @@ int songTick(int state) {
 			else if(finalAnswer){
 				state = confirm;
 			}
- 			else{
- 				state = WaitOptions;
+			else{
+				state = WaitOptions;
 			}
 			break;
 
@@ -516,7 +511,7 @@ int songTick(int state) {
 			break;
 
 		case playback:
-			if (count < 85){ //Play for 4 seconds
+			if (count < 85){ //Play for 4
 				state = playback;
 			}
 			else{
@@ -554,7 +549,6 @@ int songTick(int state) {
 	switch(state){
 		case(WaitGameStart):
 			PORTB = 0x01; //Assign yellow light on to show idle
-
 			break;
 
 		case Start:
