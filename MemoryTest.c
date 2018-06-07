@@ -3,6 +3,7 @@
  *
  *Alexander Yee
  *CS120B Final Project - Memory Test
+ *
  */
 
 //All inclusions are property of UCR 120B
@@ -94,14 +95,9 @@ void findIndex();
 
 void set_PWM(double frequency) {
 
-	static double current_frequency; // Keeps track of the currently set frequency
-
-	// Will only update the registers when the frequency changes, otherwise allows
-
-	// music to play uninterrupted.
+	static double current_frequency;
 
 	if (frequency != current_frequency) {
-
 		if (!frequency) { TCCR3B &= 0x08; } //stops timer/counter
 
 		else { TCCR3B |= 0x03; } // resumes/continues timer/counter
@@ -152,30 +148,18 @@ void transmit_data(unsigned char data) {
 void transmit_data1(unsigned char data) {
 	int i;
 	for (i = 0; i < 8 ; ++i) {
-		// Sets SRCLR to 1 allowing data to be set
-		// Also clears SRCLK in preparation of sending data
 		PORTC = 0x80;
-		// set SER = next bit of data to be sent. left shift four times to match.
 		PORTC |= (((data >> i) << 4) & 0x10);
-		// set SRCLK = 1. Rising edge shifts next bit of data into the shift register
 		PORTC |= 0x20;
 	}
-	// set RCLK = 1. Rising edge copies data from ìShiftî register to ìStorageî register
 	PORTC |= 0x40;
-	// clears all lines in preparation of a new transmission
 	PORTC = 0x00;
 }
 
 //ADC code sourced from UCR 120B
 void ADC_init() {
 	ADCSRA |= (1 << ADEN) | (1 << ADSC) | (1 << ADATE);
-	// ADEN: setting this bit enables analog-to-digital conversion.
-	// ADSC: setting this bit starts the first conversion.
-	// ADATE: setting this bit enables auto-triggering. Since we are
-	//        in Free Running Mode, a new conversion will trigger whenever
-	//        the previous conversion completes.
 }
-
 
 void findIndex(){
 	if(column_select == 0x01){
@@ -684,7 +668,7 @@ int main(void)
 	unsigned char i;
 	while (1)
 	{
-		// Scheduler code
+		// Scheduler code is property of UCR CS120B
 		for ( i = 0; i < numTasks; i++ ) {
 			// Task is ready to tick
 			if ( tasks[i]->elapsedTime == tasks[i]->period ) {
