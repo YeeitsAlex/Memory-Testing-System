@@ -1,4 +1,4 @@
-# CS120B-
+# CS120B- Final Project
 Final Project for Introduction to Embedded Systems
 
 # Hardware
@@ -15,3 +15,4 @@ Final Project for Introduction to Embedded Systems
   - Task Schedulers
   - State Machine Design
   - Software and Hardware Testing
+  - Bit Manipulation
